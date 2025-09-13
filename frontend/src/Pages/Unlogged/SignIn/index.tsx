@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import Baldussi from "assets/images/baldussi.png";
 import { login } from "api";
+import { useAuth } from "contexts/Auth";
 
 import {
   Button,
@@ -20,12 +21,14 @@ const SignIn: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { login: authLogin } = useAuth();
+
   const handleLogin = async () => {
     setLoading(true);
     setError("");
     try {
       const data = await login(email, password);
-
+      authLogin(data.token);
       console.log(data);
     } catch (err: any) {
       console.error(err);
