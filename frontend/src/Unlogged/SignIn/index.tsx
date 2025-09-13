@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+
 import Baldussi from "assets/images/baldussi.png";
+import { login } from "api";
+
 import {
   Button,
   Form,
@@ -10,7 +13,6 @@ import {
   Page,
   Right,
 } from "./styles";
-import { login, fetchASR } from "api"; // Ajuste o caminho se necessário
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -22,18 +24,12 @@ const SignIn: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      // Faz login e obtém o token
       const data = await login(email, password);
-      const token = data.access_token; // ou conforme sua API retorna
 
-      // Busca métricas ASR
-      const asrData = await fetchASR(token);
-      console.log("ASR:", asrData);
-
-      // Aqui você pode redirecionar para outra página ou atualizar estado global
+      console.log(data);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Falha no login");
+      setError("Falha no login");
     } finally {
       setLoading(false);
     }
@@ -54,7 +50,7 @@ const SignIn: React.FC = () => {
             }}
           >
             <Input
-              placeholder="Usuário"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

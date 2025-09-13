@@ -1,13 +1,12 @@
 const API = "http://localhost:8000";
 
-export async function login(email: any, password: any) {
-  const form = new URLSearchParams();
-  form.append("username", email);
-  form.append("password", password);
-  const res = await fetch(`${API}/auth/token`, {
+export async function login(email: string, password: string) {
+  const res = await fetch(`${API}/login`, {
     method: "POST",
-    body: form,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
   });
+
   if (!res.ok) throw new Error("Falha no login");
   return res.json();
 }
