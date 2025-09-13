@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: telephony
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://user:password@db:5432/telephony
+      SECRET_KEY: "troque_essa_chave"
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
