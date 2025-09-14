@@ -5,7 +5,7 @@ O **Phone Dashboard** é uma aplicação para monitoramento e análise de chamad
 O projeto é composto por dois principais serviços:
 
 - **Backend (FastAPI + PostgreSQL)** → responsável pela API, autenticação e persistência de dados.
-- **Frontend (React + Vite + TypeScript)** → interface de usuário com gráficos, tabelas e KPIs.
+- **Frontend (React + TypeScript)** → interface de usuário com gráficos, tabelas e KPIs.
 
 ---
 
@@ -16,12 +16,10 @@ O projeto é composto por dois principais serviços:
   - [FastAPI](https://fastapi.tiangolo.com/)
   - [PostgreSQL](https://www.postgresql.org/)
   - [SQLModel](https://sqlmodel.tiangolo.com/)
-  - [Alembic](https://alembic.sqlalchemy.org/)
   - [Docker & Docker Compose](https://docs.docker.com/)
 
 - **Frontend**
   - [React](https://reactjs.org/)
-  - [Vite](https://vitejs.dev/)
   - [TypeScript](https://www.typescriptlang.org/)
   - [React Router](https://reactrouter.com/)
   - [Recharts](https://recharts.org/)
