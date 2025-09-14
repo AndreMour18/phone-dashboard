@@ -4,7 +4,6 @@ from app.main import app
 from app.db import get_session
 from sqlmodel import SQLModel, create_engine, Session
 
-# Cria um DB temporário para testes
 DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
@@ -18,7 +17,6 @@ def session_fixture():
 
 @pytest.fixture(name="client")
 def client_fixture(session):
-    # Substitui o dependency do session pelo do teste
     def get_session_override():
         yield session
 

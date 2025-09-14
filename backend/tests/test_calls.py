@@ -18,7 +18,7 @@ def test_ingest_call(client):
 
 
 def test_list_calls(client):
-    client.post("/calls/mock")  # cria chamadas fake
+    client.post("/calls/mock")  
     response = client.get("/calls")
     assert response.status_code == 200
-    assert len(response.json()) >= 2  # assume que mock cria 2 chamadas
+    assert len(response.json()) >= 2
