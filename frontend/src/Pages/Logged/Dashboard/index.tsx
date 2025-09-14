@@ -111,7 +111,6 @@ const Dashboard: React.FC = () => {
     ));
   };
 
-  console.log(kpis);
   const total = useMemo(() => kpis.total_calls, [kpis]);
   const atendidas = useMemo(() => kpis.answered_calls, [kpis]);
   const asr = useMemo(() => kpis.asr, [kpis]);
