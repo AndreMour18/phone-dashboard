@@ -15,9 +15,7 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql+psycopg2://user:password@db:5432/telephony
-      SECRET_KEY: "troque_essa_chave"
     depends_on:
       - db
     ports:
       - "8000:8000"
-

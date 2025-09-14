@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Baldussi from "assets/images/baldussi.png";
 import { login } from "api";
@@ -16,6 +17,8 @@ import {
 } from "./styles";
 
 const SignIn: React.FC = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,8 +31,8 @@ const SignIn: React.FC = () => {
     setError("");
     try {
       const data = await login(email, password);
-      authLogin(data.token);
-      console.log(data);
+      authLogin(data.access_token);
+      navigate("/dashboard");
     } catch (err: any) {
       console.error(err);
       setError("Falha no login");

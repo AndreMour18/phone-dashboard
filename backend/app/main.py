@@ -4,9 +4,9 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import Session, select, SQLModel
 
-from app.db import get_session
+from app.db import get_session, engine
 from app.models import Call, User
 from app.schemas import CallIn
 from app.utils import create_access_token, verify_password
@@ -24,6 +24,12 @@ app.add_middleware(
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+@app.on_event("startup")
+def on_startup():
+    SQLModel.metadata.create_all(engine)
+    from app.seed import seed_data
+    seed_data()
 
 @app.post("/login", summary="Login via JSON")
 def login(request: LoginRequest, session: Session = Depends(get_session)):
