@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   LineChart,
   Line,
@@ -23,59 +23,131 @@ import {
   Td,
 } from "./styles";
 
+interface Call {
+  id: number;
+  call_id: string;
+  timestamp: string;
+  duration: number;
+  destination: string;
+  sip_code: number;
+  answered: boolean;
+  raw_payload: string;
+  ingested_at: string;
+}
+
+interface KPIsInterface {
+  total_calls: number;
+  answered_calls: number;
+  asr: number;
+  acd: number;
+}
+
 const Dashboard: React.FC = () => {
-  const [kpis, setKpis] = useState({
-    total: 0,
-    atendidas: 0,
+  const [kpis, setKpis] = useState<KPIsInterface>({
+    total_calls: 0,
+    answered_calls: 0,
     asr: 0,
     acd: 0,
   });
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [calls, setCalls] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<
+    { hora: number; chamadas: number }[]
+  >([]);
+  const [calls, setCalls] = useState<Call[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (!token) return;
 
-    const data = fetchASR(token).then((res) => {
-      setKpis({
-        total: res.total,
-        atendidas: res.atendidas,
-        asr: res.asr,
-        acd: res.acd,
-      });
-      setChartData(res.series);
-    });
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const kpiRes = await fetchASR(token);
+        setKpis(kpiRes);
 
-    const dataCall = listCalls(token).then((res) => setCalls(res));
-    console.log("DAata", data);
-    console.log("Dtasgfsdgf", calls);
+        const callsRes: Call[] = await listCalls(token);
+        setCalls(callsRes);
+
+        const hourMap = new Map<number, number>();
+        callsRes.forEach((call) => {
+          const hour = new Date(call.timestamp).getHours();
+          hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
+        });
+
+        const series = Array.from(hourMap, ([hora, chamadas]) => ({
+          hora,
+          chamadas,
+        }));
+        series.sort((a, b) => a.hora - b.hora);
+        setChartData(series);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, [token]);
+
+  const renderCallsRows = (calls: Call[]) => {
+    return calls.map((call) => (
+      <tr key={call.id}>
+        <Td>
+          {new Date(call.timestamp).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Td>
+        <Td>{call.destination}</Td>
+        <Td>{call.sip_code}</Td>
+        <Td>{call.answered ? "Sim" : "Não"}</Td>
+        <Td>{call.duration ?? "-"}</Td>
+      </tr>
+    ));
+  };
+
+  console.log(kpis);
+  const total = useMemo(() => kpis.total_calls, [kpis]);
+  const atendidas = useMemo(() => kpis.answered_calls, [kpis]);
+  const asr = useMemo(() => kpis.asr, [kpis]);
+  const acd = useMemo(() => kpis.acd ?? "0.00", [kpis]);
+
+  if (loading) {
+    return (
+      <div>
+        <p>Carregando dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <Container>
       <KPIs>
         <KPI>
           <h3>Total</h3>
-          <p>{kpis.total}</p>
+          <p>{total}</p>
         </KPI>
         <KPI>
           <h3>Atendidas</h3>
-          <p>{kpis.atendidas}</p>
+          <p>{atendidas}</p>
         </KPI>
         <KPI>
           <h3>ASR</h3>
-          <p>{kpis.asr}%</p>
+          <p>{asr}%</p>
         </KPI>
         <KPI>
           <h3>ACD</h3>
-          <p>{kpis.acd}</p>
+          <p>{acd}</p>
         </KPI>
       </KPIs>
 
       <ChartWrapper>
-        <h2>Série temporal de chamadas</h2>
+        <h2>Série temporal de chamadas (por hora)</h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -96,20 +168,14 @@ const Dashboard: React.FC = () => {
         <Table>
           <thead>
             <tr>
-              <Th>Período</Th>
+              <Th>Data/Hora</Th>
               <Th>Destino</Th>
               <Th>SIP Code</Th>
+              <Th>Atendida</Th>
+              <Th>Duração</Th>
             </tr>
           </thead>
-          <tbody>
-            {calls.map((call, i) => (
-              <tr key={i}>
-                <Td>{call.periodo}</Td>
-                <Td>{call.destino}</Td>
-                <Td>{call.sip_code}</Td>
-              </tr>
-            ))}
-          </tbody>
+          <tbody>{renderCallsRows(calls)}</tbody>
         </Table>
       </TableWrapper>
     </Container>
