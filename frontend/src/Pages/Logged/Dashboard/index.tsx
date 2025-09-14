@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  LineChart,
-  Line,
+  Bar,
+  BarChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -146,19 +146,18 @@ const Dashboard: React.FC = () => {
       </KPIs>
 
       <ChartWrapper>
-        <h2>Série temporal de chamadas (por hora)</h2>
+        <h2>Distribuição de Chamadas por Hora</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+          <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="hora" />
+            <XAxis dataKey="hora" tickFormatter={(hora) => `${hora}h`} />
             <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="chamadas"
-              stroke={colors.buttonGradientStart}
+            <Tooltip
+              formatter={(value) => [`${value} chamadas`, ""]}
+              labelFormatter={(label) => `Hora: ${label}h`}
             />
-          </LineChart>
+            <Bar dataKey="chamadas" fill={colors.buttonGradientStart} />
+          </BarChart>
         </ResponsiveContainer>
       </ChartWrapper>
 
