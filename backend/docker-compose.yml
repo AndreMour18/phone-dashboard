@@ -2,6 +2,7 @@ version: "3.8"
 services:
   db:
     image: postgres:15
+    restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -10,12 +11,18 @@ services:
       - "5432:5432"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d telephony"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
     build: .
     environment:
       DATABASE_URL: postgresql+psycopg2://user:password@db:5432/telephony
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"

@@ -16,9 +16,5 @@ RUN pip install -r requirements.txt
 # Copia todo o código
 COPY . .
 
-# Copia o script de espera pelo DB
-COPY wait-for-db.sh /wait-for-db.sh
-RUN chmod +x /wait-for-db.sh
-
 # Comando de inicialização
-CMD ["/wait-for-db.sh", "db", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
